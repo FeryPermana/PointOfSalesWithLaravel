@@ -32,12 +32,12 @@
                  </a>
              </li>
              <li>
-                 <a href="#">
+                 <a href="{{ route('member.index') }}">
                      <i class="fa fa-id-card"></i> <span>Member</span>
                  </a>
              </li>
              <li>
-                 <a href="#">
+                 <a href="{{ route('supplier.index') }}">
                      <i class="fa fa-truck"></i> <span>Supplier</span>
                  </a>
              </li>

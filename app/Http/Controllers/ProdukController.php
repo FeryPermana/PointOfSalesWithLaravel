@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\kategori;
+use App\Models\Kategori;
 use App\Models\Produk;
+use PDF;
 
 class ProdukController extends Controller
 {
     public function index()
     {
-        $kategori = kategori::all()->pluck('nama_kategori', 'id_kategori');
+        $kategori = Kategori::all()->pluck('nama_kategori', 'id_kategori');
 
         return view('produk.index', compact('kategori'));
     }
@@ -19,12 +20,17 @@ class ProdukController extends Controller
     {
         $produk = Produk::leftJoin('kategori', 'kategori.id_kategori', 'produk.id_kategori')
                 ->select('produk.*', 'nama_kategori')
-                ->orderBy('kode_produk', 'asc')
+                ->orderBy('kode_produk', 'desc')
                 ->get();
 
         return datatables()
             ->of($produk)
             ->addIndexColumn()
+            ->addColumn('select_all', function ($produk) {
+                return '
+                    <input type="checkbox" name="id_produk[]" value="'. $produk->id_produk .'">
+                ';
+            })
             ->addColumn('kode_produk', function ($produk) {
                 return '<span class="label label-success">'. $produk->kode_produk .'</span>';
             })
@@ -34,18 +40,18 @@ class ProdukController extends Controller
             ->addColumn('harga_jual', function ($produk) {
                 return format_uang($produk->harga_jual);
             })
-            ->addColumn('stok', function ($produk) {
-                return format_uang($produk->stok);
+            ->addColumn('stock', function ($produk) {
+                return format_uang($produk->stock);
             })
             ->addColumn('aksi', function ($produk) {
                 return '
                 <div class="btn-group">
-                    <button onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-info btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button onclick="deleteData(`'. $produk->id_produk .'`)" class="btn btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                    <button type="button" onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-info btn-flat"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. $produk->id_produk .'`)" class="btn btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
-            ->rawColumns(['aksi', 'kode_produk'])
+            ->rawColumns(['aksi', 'kode_produk', 'select_all'])
             ->make(true);
     }
 
@@ -134,5 +140,29 @@ class ProdukController extends Controller
                 'status' => 'error'
             ]);
         }
+    }
+
+    public function deleteSelected(Request $request)
+    {
+        foreach($request->id_produk as $id) {
+            $produk = Produk::find($id);
+            $produk->delete();
+        }
+
+        return response(null, 204);
+    }
+
+    public function cetakBarcode(Request $request)
+    {
+        $dataproduk = array();
+        foreach($request->id_produk as $id)
+        {
+            $produk = Produk::find($id);
+            $dataproduk[] = $produk;
+        }
+        $no = 1;
+        $pdf = PDF::loadView('produk.barcode', compact('dataproduk', 'no'));
+        $pdf->setPaper('a4', 'potrait');
+        return $pdf->stream('produk.pdf');
     }
 }

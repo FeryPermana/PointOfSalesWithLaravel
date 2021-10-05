@@ -71,6 +71,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                    <button type="reset" class="btn btn-sm btn-flat btn-info"><i class="fa fa-window-restore"></i> reset</button>
                     <button type="button" class="btn btn-sm btn-flat btn-warning" data-dismiss="modal"><i
                             class="fa fa-arrow-circle-left"></i> Batal</button>
                 </div>

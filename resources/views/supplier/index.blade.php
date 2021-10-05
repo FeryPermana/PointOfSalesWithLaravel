@@ -1,11 +1,11 @@
 @extends('layouts.master')
 @section('title')
-    kategori
+    Supplier
 @endsection
 
 @section('breadcrumb')
     @parent
-    <li class="active">kategori</li>
+    <li class="active">Supplier</li>
 @endsection
 
 @section('content')
@@ -13,24 +13,29 @@
         <div class="col-md-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <button onclick="addForm('{{ route('kategori.store') }}')" class="btn btn-success btn-flat"><i
+                    <button onclick="addForm('{{ route('supplier.store') }}')" class="btn btn-success btn-flat"><i
                             class="fa fa-plus-circle"></i> Tambah</button>
                 </div>
                 <div class="box-body table-responsive">
-                    <table id="tabel" class="table table-stiped table-bordered">
-                        <thead>
-                            <th width="5%">No</th>
-                            <th>Kategori</th>
-                            <th width="15%"><i class="fa fa-cog"></i>Aksi</th>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <form action="" method="post" class="form-supplier">
+                        @csrf
+                        <table id="tabel" class="table table-stiped table-bordered">
+                            <thead>
+                                <th width="5%">No</th>
+                                <th>Nama</th>
+                                <th>Telepon</th>
+                                <th>Alamat</th>
+                                <th width="15%"><i class="fa fa-cog"></i>Aksi</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 @endsection
-@includeIf('kategori.form')
+@includeIf('supplier.form')
 @push('scripts')
     <script>
         let table;
@@ -40,15 +45,22 @@
                 processing: true,
                 autoWidth: false,
                 ajax: {
-                    url: "{{ route('kategori.data') }}",
+                    url: "{{ route('supplier.data') }}",
                 },
-                columns: [{
+                columns: [
+                    {
                         data: 'DT_RowIndex',
                         searchable: false,
                         sortable: false
                     },
                     {
-                        data: 'nama_kategori'
+                        data: 'nama'
+                    },
+                    {
+                        data: 'telepon'
+                    },
+                    {
+                        data: 'alamat'
                     },
                     {
                         data: 'aksi',
@@ -62,7 +74,7 @@
                 if (!e.preventDefault()) {
                     $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
                         .done((response) => {
-                                swal({
+                            swal({
                                 type: "success",
                                 icon: "success",
                                 title: "BERHASIL!",
@@ -71,16 +83,16 @@
                                 showConfirmButton: false,
                                 showCancelButton: false,
                                 buttons: false,
-                                });
-                                $('#modal-form').modal('hide');
-                                table.ajax.reload();
+                            });
+                            $('#modal-form').modal('hide');
+                            table.ajax.reload();
                         })
                         .fail((errors) => {
                             swal({
                                 type: "warning",
                                 icon: "error",
                                 title: "Tidak dapat menyimpan data !",
-                                text: "Periksa data category apakah sudah terdaftar atau belum",
+                                text: "Periksa data supplier apakah sudah terdaftar atau belum",
                                 showConfirmButton: true,
                                 showCancelButton: false,
                             });
@@ -88,30 +100,36 @@
                         })
                 }
             })
+
+            $('[name=select_all]').on('click', function() {
+                $(':checkbox').prop('checked', this.checked);
+            });
         });
 
         function addForm(url) {
             $('#modal-form').modal('show');
-            $('#modal-form .modal-title').text('Tambah Kategori');
+            $('#modal-form .modal-title').text('Tambah Member');
 
             $('#modal-form form')[0].reset();
             $('#modal-form form').attr('action', url);
             $('#modal-form [name=_method]').val('post');
-            $('#modal-form [name=nama_kategori]').focus();
+            $('#modal-form [name=nama]').focus();
         }
 
         function editForm(url) {
             $('#modal-form').modal('show');
-            $('#modal-form .modal-title').text('Edit Kategori');
+            $('#modal-form .modal-title').text('Edit supplier');
 
             $('#modal-form form')[0].reset();
             $('#modal-form form').attr('action', url);
             $('#modal-form [name=_method]').val('put');
-            $('#modal-form [name=nama_kategori]').focus();
+            $('#modal-form [name=nama]').focus();
             // url show sama url update itu sama
             $.get(url)
                 .done((response) => {
-                    $('#modal-form [name=nama_kategori]').val(response.nama_kategori);
+                    $('#modal-form [name=nama]').val(response.nama);
+                    $('#modal-form [name=telepon]').val(response.telepon);
+                    $('#modal-form [name=alamat]').val(response.alamat);
                 })
                 .fail((errors) => {
                     alert('Tidak dapat menampilkan data');
@@ -124,7 +142,7 @@
             var token = $("meta[name='csrf-token']").attr("content");
             swal({
                 title: "APAKAH KAMU YAKIN ?",
-                text: "INGIN MENGHAPUS KATEGORI INI!",
+                text: "INGIN MENGHAPUS SUPPLIER INI!",
                 icon: "warning",
                 buttons: [
                     'TIDAK',
@@ -135,7 +153,7 @@
                 if (isConfirm) {
                     //ajax delete
                     jQuery.ajax({
-                        url: "{{ route('kategori.index') }}/" + id,
+                        url: "{{ route('supplier.index') }}/" + id,
                         data: {
                             "id": id,
                             "_token": token
@@ -145,7 +163,7 @@
                             if (response.status == "success") {
                                 swal({
                                     title: 'BERHASIL!',
-                                    text: 'KATEGORI BERHASIL DIHAPUS!',
+                                    text: 'SUPPLIER BERHASIL DIHAPUS!',
                                     icon: 'success',
                                     timer: 1000,
                                     showConfirmButton: false,
@@ -157,7 +175,7 @@
                             } else {
                                 swal({
                                     title: 'GAGAL!',
-                                    text: 'KATEGORI GAGAL DIHAPUS!',
+                                    text: 'SUPPLIER GAGAL DIHAPUS!',
                                     icon: 'error',
                                     timer: 1000,
                                     showConfirmButton: false,
@@ -173,6 +191,24 @@
                     return true;
                 }
             })
+        }
+        function cetakMember(url)
+        {
+            if ($('input:checked').length < 1) {
+                swal({
+                    title: 'GAGAL!',
+                    text: ' PILIH DATA YANG AKAN DICETAK!',
+                    icon: 'error',
+                    showConfirmButton: true,
+                    showCancelButton: false,
+                })
+                return;
+            }else{
+              $('.form-supplier')
+                .attr('target', '_blank')
+                .attr('action', url)
+                .submit();
+            }
         }
     </script>
 @endpush
