@@ -1,11 +1,11 @@
 @extends('layouts.master')
 @section('title')
-    Member
+    Transaksi Pembelian
 @endsection
 
 @section('breadcrumb')
     @parent
-    <li class="active">Member</li>
+    <li class="active">Transaksi Pembelian</li>
 @endsection
 
 @section('content')
@@ -13,22 +13,21 @@
         <div class="col-md-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <button onclick="addForm('{{ route('member.store') }}')" class="btn btn-success btn-flat"><i
-                            class="fa fa-plus-circle"></i> Tambah</button>
-                    <button onclick="cetakMember('{{ route('member.cetak_member') }}')" class="btn btn-info btn-flat"><i class="fa fa-id-card"></i> Cetak Member</button>
+                    <button onclick="addForm()" class="btn btn-success btn-flat"><i
+                            class="fa fa-plus-circle"></i> Transaksi Baru</button>
                 </div>
                 <div class="box-body table-responsive">
-                    <form action="" method="post" class="form-member">
+                    <form action="" method="post" class="form-supplier">
                         @csrf
-                        <table id="tabel" class="table table-stiped table-bordered">
+                        <table id="table" class="table table-stiped table-bordered">
                             <thead>
-                                <th width="5%">
-                                    <input type="checkbox" name="select_all" id="select_all">
-                                </th>
                                 <th width="5%">No</th>
-                                <th>Nama</th>
-                                <th>Telepon</th>
-                                <th>Alamat</th>
+                                <th>Tanggal</th>
+                                <th>Supplier</th>
+                                <th>Total Item</th>
+                                <th>Total Harga</th>
+                                <th>Diskon</th>
+                                <th>Total Bayar</th>
                                 <th width="15%"><i class="fa fa-cog"></i>Aksi</th>
                             </thead>
                             <tbody></tbody>
@@ -39,94 +38,49 @@
         </div>
     </div>
 @endsection
-@includeIf('member.form')
+@includeIf('pembelian.supplier')
 @push('scripts')
     <script>
         let table;
 
         $(document).ready(function() {
-            table = $('#tabel').DataTable({
-                processing: true,
-                autoWidth: false,
-                ajax: {
-                    url: "{{ route('member.data') }}",
-                },
-                columns: [{
-                        data: 'select_all',
-                         searchable: false,
-                        sortable: false
-                    },
-                    {
-                        data: 'DT_RowIndex',
-                        searchable: false,
-                        sortable: false
-                    },
-                    {
-                        data: 'nama'
-                    },
-                    {
-                        data: 'telepon'
-                    },
-                    {
-                        data: 'alamat'
-                    },
-                    {
-                        data: 'aksi',
-                        searchable: false,
-                        sortable: false
-                    },
-                ]
-            });
-
-            $("#modal-form").validator().on('submit', function(e) {
-                if (!e.preventDefault()) {
-                    $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
-                        .done((response) => {
-                            swal({
-                                type: "success",
-                                icon: "success",
-                                title: "BERHASIL!",
-                                text: response,
-                                timer: 1500,
-                                showConfirmButton: false,
-                                showCancelButton: false,
-                                buttons: false,
-                            });
-                            $('#modal-form').modal('hide');
-                            table.ajax.reload();
-                        })
-                        .fail((errors) => {
-                            swal({
-                                type: "warning",
-                                icon: "error",
-                                title: "Tidak dapat menyimpan data !",
-                                text: "Periksa data member apakah sudah terdaftar atau belum",
-                                showConfirmButton: true,
-                                showCancelButton: false,
-                            });
-                            return;
-                        })
-                }
-            })
-
-            $('[name=select_all]').on('click', function() {
-                $(':checkbox').prop('checked', this.checked);
+            table = $('#table').DataTable({
+                // processing: true,
+                // autoWidth: false,
+                // ajax: {
+                //     url: "{{ route('supplier.data') }}",
+                // },
+                // columns: [
+                //     {
+                //         data: 'DT_RowIndex',
+                //         searchable: false,
+                //         sortable: false
+                //     },
+                //     {
+                //         data: 'nama'
+                //     },
+                //     {
+                //         data: 'telepon'
+                //     },
+                //     {
+                //         data: 'alamat'
+                //     },
+                //     {
+                //         data: 'aksi',
+                //         searchable: false,
+                //         sortable: false
+                //     },
+                // ]
             });
         });
 
-        function addForm(url) {
-            $('#modal-form').modal('show');
-            $('#modal-form .modal-title').text('Tambah Member');
-
-            $('#modal-form form')[0].reset();
-            $('#modal-form form').attr('action', url);
-            $('#modal-form [name=_method]').val('post');
-            $('#modal-form [name=nama]').focus();
+        function addForm() {
+            $('#modal-supplier').modal('show');
         }
 
         function editForm(url) {
             $('#modal-form').modal('show');
-            $('#modal-form .modal-title').text('Edit member');
+            $('#modal-form .modal-title').text('Edit supplier');
 
             $('#modal-form form')[0].reset();
             $('#modal-form form').attr('action', url);
@@ -150,7 +104,7 @@
             var token = $("meta[name='csrf-token']").attr("content");
             swal({
                 title: "APAKAH KAMU YAKIN ?",
-                text: "INGIN MENGHAPUS MEMBER INI!",
+                text: "INGIN MENGHAPUS SUPPLIER INI!",
                 icon: "warning",
                 buttons: [
                     'TIDAK',
@@ -161,7 +115,7 @@
                 if (isConfirm) {
                     //ajax delete
                     jQuery.ajax({
-                        url: "{{ route('member.index') }}/" + id,
+                        url: "{{ route('supplier.index') }}/" + id,
                         data: {
                             "id": id,
                             "_token": token
@@ -171,7 +125,7 @@
                             if (response.status == "success") {
                                 swal({
                                     title: 'BERHASIL!',
-                                    text: 'MEMBER BERHASIL DIHAPUS!',
+                                    text: 'SUPPLIER BERHASIL DIHAPUS!',
                                     icon: 'success',
                                     timer: 1000,
                                     showConfirmButton: false,
@@ -183,7 +137,7 @@
                             } else {
                                 swal({
                                     title: 'GAGAL!',
-                                    text: 'MEMBER GAGAL DIHAPUS!',
+                                    text: 'SUPPLIER GAGAL DIHAPUS!',
                                     icon: 'error',
                                     timer: 1000,
                                     showConfirmButton: false,
@@ -212,7 +166,7 @@
                 })
                 return;
             }else{
-              $('.form-member')
+              $('.form-supplier')
                 .attr('target', '_blank')
                 .attr('action', url)
                 .submit();

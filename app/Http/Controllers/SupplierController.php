@@ -36,7 +36,7 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
 
-        $supllier = Supplier::create($request->all());
+        $supplier = Supplier::create($request->all());
 
         return response()->json('Data berhasil disimpan', 200);
     }

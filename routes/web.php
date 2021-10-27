@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,7 +22,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('home');
 })->name('dashboard');
 
-Route::group(['middleware' => 'auth'], function() {
+Route::group(['middleware' => 'auth'], function () {
     Route::get('/kategori/data', [KategoriController::class, 'data'])->name('kategori.data');
     Route::resource('/kategori', KategoriController::class);
 
@@ -39,4 +40,16 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::get('/pengeluaran/data', [PengeluaranController::class, 'data'])->name('pengeluaran.data');
     Route::resource('/pengeluaran', PengeluaranController::class);
+
+    Route::get('/pembelian/{id}/create', [PembelianController::class, 'create'])->name('pembelian.create');
+    Route::resource('/pembelian', PembelianController::class)
+        ->except('create');
+
+
+    Route::get('/pembelian_detail/{id}/data', [PembelianDetailController::class, 'data'])->name('pembelian_detail.data');
+
+    Route::get('/pembelian_detail/loadform/{diskon}/{total}', [PembelianDetailController::class, 'loadForm'])->name('pembelian_detail.load_form');
+    Route::get('/pembelian_detail/data_produk', [PembelianDetailController::class, 'dataProduk'])->name('pembelian_detail.dataproduk');
+    Route::resource('/pembelian_detail', PembelianDetailController::class)
+        ->except('create', 'show', 'edit');
 });
