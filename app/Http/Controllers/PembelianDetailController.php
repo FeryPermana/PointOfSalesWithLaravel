@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pembelian;
 use App\Models\PembelianDetail;
 use App\Models\Produk;
 use App\Models\Supplier;
@@ -12,14 +13,15 @@ class PembelianDetailController extends Controller
     public function index()
     {
         $id_pembelian = session('id_pembelian');
-        $produk = Produk::orderBy('nama_produk')->get();
-        $supplier = Supplier::find(session('id_supplier'));
+        $produk       = Produk::orderBy('nama_produk')->get();
+        $supplier     = Supplier::find(session('id_supplier'));
+        $diskon       = Pembelian::find($id_pembelian)->diskon ?? 0;
 
         if(!$supplier) {
             abort(404);
         }
 
-        return view('pembelian_detail.index', compact('id_pembelian', 'produk', 'supplier'));
+        return view('pembelian_detail.index', compact('id_pembelian', 'produk', 'supplier', 'diskon'));
     }
 
     public function data($id)
@@ -36,10 +38,12 @@ class PembelianDetailController extends Controller
             $row['kode_produk'] = '<span class="label label-success">'. $item->produk['kode_produk'] .'<span>';
             $row['nama_produk'] = $item->produk['nama_produk'];
             $row['harga_beli']  = 'Rp. ' . format_uang($item->harga_beli);
-            $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" id="quantity" data-id="'. $item->id_pembelian_detail .'" value="'.$item->jumlah .'">';
+            $row['jumlah']      = '<div class="form-group">
+                                        <input type="number" class="form-control input-sm quantity" id="quantity" data-id="'. $item->id_pembelian_detail .'" value="'.$item->jumlah .'">
+                                    </div>';
             $row['subtotal']   = 'Rp. ' . format_uang($item->subtotal);;
             $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`'. route('pembelian_detail.destroy', $item->id_pembelian_detail) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                                    <button onclick="deleteData(`'.$item->id_pembelian_detail .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                                 </div>';
 
             $data[] = $row;

@@ -1,58 +1,50 @@
 @extends('layouts.master')
 @section('title')
-    Transaksi Pembelian
+    Daftar Penjualan
 @endsection
 
 @section('breadcrumb')
     @parent
-    <li class="active">Transaksi Pembelian</li>
+    <li class="active">Daftar Penjualan</li>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-md-12">
             <div class="box">
-                <div class="box-header with-border">
-                    <button onclick="addForm()" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Transaksi
-                        Baru</button>
-                    @empty(!session('id_pembelian'))
-                        <a href="{{ route('pembelian_detail.index') }}" class="btn btn-info btn-flat"><i
-                                class="fa fa-edit"></i>Transaksi Aktif</a>
-                    @endempty
-                </div>
                 <div class="box-body table-responsive">
-                        <table id="table" class="table table-pembelian table-stiped table-bordered">
-                            <thead>
-                                <th width="5%">No</th>
-                                <th>Tanggal</th>
-                                <th>Supplier</th>
-                                <th>Total Item</th>
-                                <th>Total Harga</th>
-                                <th>Diskon</th>
-                                <th>Total Bayar</th>
-                                <th width="15%"><i class="fa fa-cog"></i>Aksi</th>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <table id="table" class="table table-penjualan table-stiped table-bordered">
+                        <thead>
+                            <th width="5%">No</th>
+                            <th>Tanggal</th>
+                            <th>Kode Member</th>
+                            <th>Total Item</th>
+                            <th>Total Harga</th>
+                            <th>Diskon</th>
+                            <th>Total Bayar</th>
+                            <th>Kasir</th>
+                            <th width="15%"><i class="fa fa-cog"></i>Aksi</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 @endsection
-@includeIf('pembelian.supplier')
-@includeIf('pembelian.detail')
+@includeIf('penjualan.detail')
 @push('scripts')
     <script>
         let table;
 
         $(document).ready(function() {
-            table = $('.table-pembelian').DataTable({
+            table = $('.table-penjualan').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
                 ajax: {
-                    url: '{{ route('pembelian.data') }}',
+                    url: '{{ route('penjualan.data') }}',
                 },
                 columns: [{
                         data: 'DT_RowIndex',
@@ -63,7 +55,7 @@
                         data: 'tanggal'
                     },
                     {
-                        data: 'supplier'
+                        data: 'kode_member'
                     },
                     {
                         data: 'total_item'
@@ -78,16 +70,15 @@
                         data: 'bayar'
                     },
                     {
+                        data: 'kasir'
+                    },
+                    {
                         data: 'aksi',
                         searchable: false,
                         sortable: false
                     },
                 ]
             });
-
-
-            $('.table-supplier').DataTable();
-
 
             tabledetail = $('#table-detail').DataTable({
                 processing: true,
@@ -105,7 +96,7 @@
                         data: 'nama_produk'
                     },
                     {
-                        data: 'harga_beli'
+                        data: 'harga_jual'
                     },
                     {
                         data: 'jumlah'
@@ -116,10 +107,6 @@
                 ]
             })
         });
-
-        function addForm() {
-            $('#modal-supplier').modal('show');
-        }
 
         function showDetail(url) {
             $('#modal-detail').modal('show');
@@ -143,7 +130,7 @@
                 if (isConfirm) {
                     //ajax delete
                     jQuery.ajax({
-                        url: "{{ route('pembelian.index') }}/" + id,
+                        url: "{{ route('penjualan.index') }}/" + id,
                         data: {
                             "id": id,
                             "_token": token
